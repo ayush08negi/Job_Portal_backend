@@ -13,13 +13,14 @@ export const signup = async(req,res)=>{
         });
       };
           const user = await User.findOne({email});
-          if(!user){
+          console.log("user",user);
+          if(user){
             return res.status(400).json({
                 message:'User already exists with this email ',
                 success: false,
             })
           }
-          const hashedPassword = await bcrypt.hash(password , 5);
+          const hashedPassword = await bcrypt.hash(password , 10);
 
           await User.create({
              fullname,
@@ -34,9 +35,10 @@ export const signup = async(req,res)=>{
              success:true,
           })
     }catch(error){
+        console.log("error",error)
        return res.status(500).json({
            success:false,
-           error:err,
+           err:error,
            data:{}
         })
     }
@@ -102,7 +104,7 @@ export const login  = async(req,res) =>{
 
 export const logout = async(req,res)=>{
     try{
-       return res.status(200).json({
+       return res.status(200).cookie("token","", {maxAge: 0}).json({
          message:"Logged out successsfully",
          success:true,
        })
@@ -114,15 +116,10 @@ export const logout = async(req,res)=>{
 export const updateProfile = async(req,res)=>{
      try{
         const {fullname , email , phoneNumber, bio , skills } = req.body;
-        if(!fullname || !email || !phoneNumber || !bio || !skills ){
-            return res.status(400).json({
-               message:"Something is missing ",
-               success: false,
-            });
-        }
         
-        const skillsArray = skills.split(",");
-        const userId = req._id
+        let skillsArray;
+        if(skills)  skillsArray = skills.split(",");
+        const userId = req.id;
         let user = await User.findById(userId);
 
         if(!user){
@@ -132,15 +129,15 @@ export const updateProfile = async(req,res)=>{
             })
         }
 
-        user.fullname = fullname,
-        user.email = email,
-        user.phoneNumber = phoneNumber,
-        user.profile.bio = bio,
-        user.profile.skills = skillsArray
+        if(fullname) user.fullname = fullname;
+        if(email) user.email = email;
+        if(phoneNumber) user.phoneNumber = phoneNumber;
+        if(bio) user.profile.bio = bio;
+        if(skills) user.profile.skills = skillsArray
         
         await user.save();
         
-        // creating new user
+        //creating new user
         user = {
             _id : user._id,
             fullname : user.fullname,
@@ -150,7 +147,7 @@ export const updateProfile = async(req,res)=>{
             profile:user.profile
         }
 
-        return res.stauts(201).json({
+        return res.status(201).json({
             message:"Profile updated succesfully",
             user,
             success:true

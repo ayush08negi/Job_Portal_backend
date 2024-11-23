@@ -14,8 +14,12 @@ const userSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
+    password:{
+        type:String,
+        required:true
+    },
     role:{
-        type:Number,
+        type:String,
         enum: ['student','recruiter'],
         required: true
     },
@@ -29,7 +33,7 @@ const userSchema = new mongoose.Schema({
              ref :'Company'
             },
         profilePhoto:{
-            type:Stirng,
+            type:String,
             default:"",
         }
     },
