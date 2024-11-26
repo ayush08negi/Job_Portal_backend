@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { trusted } from 'mongoose'
 
 // this for applicant who has applied for the job
 const applicationSchema = new mongoose.Schema({
@@ -20,4 +20,4 @@ const applicationSchema = new mongoose.Schema({
 
 },{timestamps:true})
 
-export const Application = mongoose.model(Application,applicationSchema);
+export const Application = mongoose.model('Application',applicationSchema);
